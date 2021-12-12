@@ -27,4 +27,13 @@ section {
   background-color: red;
 }
 
+.dead {
+  height: 0px;
+  width: 0px;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 /*# sourceMappingURL=style.css.map */

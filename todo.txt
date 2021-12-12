@@ -1,8 +1,9 @@
 DONE
 ----
+eat
 pathfinding
 collision dectation
 
 TODO
 ----
-eat
+

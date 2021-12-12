@@ -8,16 +8,20 @@ const dirs = generateDirs();
 
 init();
 function init() {
-  const eles = [];
+  globalThis.eles = [];
   eles.push(createBody());
   eles.push(createBody());
   eles.push(createBody());
 
+  simulate(eles)
+}
+
+function simulate(arr) {
   id = setInterval(() => {
-    for (const i in eles) {
-      const copy = eles.slice();
+    for (const i in arr) {
+      const copy = arr.slice();
       copy.splice(i, 1);
-      frame(eles[i], copy);
+      frame(arr[i], copy);
     }
   }, 200);
 }
@@ -35,19 +39,31 @@ function frame(ele, copy) {
     }
   }
 
-  // follow
   if (ele.following) {
-    ele.vel = bestDir(
-      ele.childNodes[0].getBoundingClientRect(),
-      ele.following.getBoundingClientRect()
-    );
-    ele.move(ele.vel);
-    return;
+    // check if reached
+    if (checkCollision(ele.childNodes[0], ele.following)) {
+
+      // kill
+      stop()
+      ele.following.parentNode.classList.add("dead");
+      eles.splice(eles.indexOf(ele.following.parentNode),1)
+      ele.following = null;
+      eles = eles.reverse()
+
+      simulate(eles);
+    } else {
+      // follow
+      ele.vel = bestDir(
+        ele.childNodes[0].getBoundingClientRect(),
+        ele.following.getBoundingClientRect()
+      );
+      return ele.move(ele.vel);
+    }
   }
 
   // move randomly
   ele.vel = randomVel();
-  ele.move(ele.vel)
+  ele.move(ele.vel);
 }
 
 function bestDir(pos, goal) {
