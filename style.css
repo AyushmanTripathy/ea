@@ -15,8 +15,8 @@ section {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 120px;
-  width: 120px;
+  height: 350px;
+  width: 350px;
   background-color: transparent;
   border: 2px solid #bbb;
 }

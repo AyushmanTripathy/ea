@@ -1,0 +1,8 @@
+DONE
+----
+pathfinding
+collision dectation
+
+TODO
+----
+eat
