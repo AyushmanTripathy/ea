@@ -9,11 +9,16 @@ const dirs = generateDirs();
 init();
 function init() {
   globalThis.eles = [];
-  eles.push(createBody());
-  eles.push(createBody());
-  eles.push(createBody());
+  eles.push(createBody("sheep"));
+  eles.push(createBody("sheep"));
+  eles.push(createBody("sheep"));
+  eles.push(createBody("sheep"));
+  eles.push(createBody("sheep"));
+  eles.push(createBody("sheep"));
+  eles.push(createBody("wolf"));
+  eles.push(createBody("wolf"));
 
-  simulate(eles)
+  simulate(eles);
 }
 
 function simulate(arr) {
@@ -21,7 +26,7 @@ function simulate(arr) {
     for (const i in arr) {
       const copy = arr.slice();
       copy.splice(i, 1);
-      frame(arr[i], copy);
+      if (frame(arr[i], copy)) return simulate(eles);
     }
   }, 200);
 }
@@ -29,34 +34,40 @@ function simulate(arr) {
 function frame(ele, copy) {
   ele.style["border-color"] = "#bbb";
 
-  // check collision
+  // fleeing
+  if (ele.fleeing) {
+    if (checkCollision(ele, ele.fleeing)) {
+      ele.vel = bestDir(ele.childNodes[0], ele.fleeing, true);
+
+      ele.style["border-color"] = "red";
+      return ele.move(ele.vel);
+    } else ele.fleeing = null;
+  }
+
+  // look around
   for (let against of copy) {
     against = against.childNodes[0];
     const result = checkCollision(ele, against);
     if (result) {
-      ele.style["border-color"] = "green";
-      ele.following = against;
+      ele.style["border-color"] = "yellow";
+
+      if (ele.flee.includes(against.type)) ele.fleeing = against;
+      else if (ele.follow.includes(against.type)) ele.following = against;
+      else log(against.type + " unknown type");
     }
   }
 
+  // following
   if (ele.following) {
     // check if reached
     if (checkCollision(ele.childNodes[0], ele.following)) {
-
       // kill
-      stop()
-      ele.following.parentNode.classList.add("dead");
-      eles.splice(eles.indexOf(ele.following.parentNode),1)
-      ele.following = null;
-      eles = eles.reverse()
-
-      simulate(eles);
+      ele.kill(ele.following);
+      return true;
     } else {
       // follow
-      ele.vel = bestDir(
-        ele.childNodes[0].getBoundingClientRect(),
-        ele.following.getBoundingClientRect()
-      );
+      ele.vel = bestDir(ele.childNodes[0], ele.following);
+      ele.style["border-color"] = "green";
       return ele.move(ele.vel);
     }
   }
@@ -66,56 +77,87 @@ function frame(ele, copy) {
   ele.move(ele.vel);
 }
 
-function bestDir(pos, goal) {
-  let best = Infinity;
+function bestDir(pos, goal, opp) {
+  pos = pos.getBoundingClientRect();
+  goal = goal.getBoundingClientRect();
+
+  let best = opp ? 0 : Infinity;
   let bestDir;
 
   for (const dir of dirs) {
-    // add dir and pos
-    const newPos = {
-      x: pos.x + dir.x,
-      y: pos.y + dir.y,
-    };
-
-    const distance = dist(newPos, goal);
-    if (best > distance) {
+    const distance = dist(
+      {
+        x: pos.x + dir.x,
+        y: pos.y + dir.y,
+      },
+      goal
+    );
+    if (opp ? best < distance : best > distance) {
       best = distance;
       bestDir = dir;
     }
   }
 
+  if (!bestDir) throw "no best dir found";
   return bestDir;
 }
 
-function createBody() {
-  const map = document.createElement("div");
+function createBody(type) {
+  const body = document.createElement("div");
   const head = document.createElement("div");
   const hash_id = hash();
 
   head.setAttribute("id", hash_id);
-  map.setAttribute("id", hash_id);
-  map.x = random(10, 90);
-  map.y = random(10, 90);
-  map.following = null;
-  map.vel = randomVel();
+  body.setAttribute("id", hash_id);
+  body.x = random(10, 90);
+  body.y = random(10, 90);
+  body.following = null;
+  body.vel = randomVel();
+  head.type = type;
 
-  map.move = ({ x = 0, y = 0 }) => {
-    map.x += x;
-    map.y += y;
-    map.style.top = map.y + "%";
-    map.style.left = map.x + "%";
+  body.classList.add(type + "_body");
+  head.classList.add(type + "_head");
+
+  body.move = ({ x = 0, y = 0 }) => {
+    body.x += x * body.speed;
+    body.y += y * body.speed;
+    body.style.top = body.y + "%";
+    body.style.left = body.x + "%";
   };
 
-  map.move({});
+  switch (type) {
+    case "wolf":
+      body.speed = 1;
+      body.flee = [];
+      body.follow = ["sheep"];
+      body.wolf = () => log("wolf to reproduce");
+      body.sheep = (sheep) => {};
+      break;
+    case "sheep":
+      body.speed = 0.6;
+      body.flee = ["wolf"];
+      body.follow = ["sheep"];
+      body.sheep = () => log("sheep to reproduce");
+      break;
+  }
   head.classList.add("head");
-  map.appendChild(head);
-  map.classList.add("creature");
+  body.appendChild(head);
+  body.classList.add("body");
 
-  playground.appendChild(map);
-  return map;
+  body.kill = (target) => {
+      stop();
+      target.parentNode.remove();
+      eles.splice(eles.indexOf(target.parentNode), 1);
+      body.following = null;
+      eles = eles.reverse();
+  }
+  body.move({});
+  playground.appendChild(body);
+  return body;
 }
 
 function checkCollision(a, b) {
+  if (!a || !b) return null;
   const rect1 = a.getBoundingClientRect();
   const rect2 = b.getBoundingClientRect();
   const isInHoriztonalBounds =

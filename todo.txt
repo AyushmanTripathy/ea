@@ -1,9 +1,18 @@
 DONE
 ----
+sheeps
+fleeing away
 eat
 pathfinding
 collision dectation
 
 TODO
 ----
+bug wolf following dead sheep
+moving semi-random
+add sprites
 
+NOTE
+----
+clear interval and restart
+to debug error
