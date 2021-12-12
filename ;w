@@ -1,0 +1,43 @@
+const playground = document.querySelector("section");
+const log = (s) => console.log(s);
+const $ = (id) => document.getElementById(id);
+
+let hash_code = 0;
+
+init();
+function init() {
+  const eles = [];
+  eles.push(createBody());
+  eles.push(createBody());
+
+  for (const ele of eles) {
+    log(ele);
+    ele.move(50, 10);
+  }
+  eles[0].move(30, 10);
+}
+
+function createBody() {
+  const ele = document.createElement("div");
+  const hash_id = hash();
+  ele.setAttribute("id", hash_id);
+  ele.left = 0;
+  ele.top = 0;
+
+  ele.move = (top, left) => {
+    ele.top += top;
+    ele.left += left;
+    ele.style.top = ele.top + "%";
+    ele.style.left = ele.left + "%";
+    log(ele.style.left);
+  };
+
+  ele.classList.add("creature");
+  playground.appendChild(ele);
+  return ele;
+}
+
+function hash() {
+  hash_code += 1;
+  return "hash" + hash_code;
+}

@@ -1,0 +1,49 @@
+$bg: #202124;
+$sec: #bbb;
+
+@mixin top-left {
+  top: 0;
+  left: 0;
+}
+@mixin fullscreen {
+  height: 100vh;
+  width: 100vw;
+}
+@mixin absolute {
+  position: absolute;
+  @include top-left;
+}
+@mixin flex($dir) {
+  display: flex;
+  flex-direction: $dir;
+}
+@mixin flex-center {
+  justify-content: center;
+  align-items: center;
+}
+@mixin relative {
+  position: relative;
+  @include top-left;
+}
+
+section {
+  @include absolute;
+  @include fullscreen;
+  background-color: $bg;
+}
+
+.creature {
+  @include absolute;
+  @include flex(column);
+  @include flex-center;
+  height: 100px;
+  width: 100px;
+  background-color: transparent;
+  border: 2px solid $sec;
+}
+
+.head {
+  height: 20px;
+  width: 20px;
+  background-color: red;
+}
