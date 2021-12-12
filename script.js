@@ -26,7 +26,7 @@ function simulate(arr) {
     for (const i in arr) {
       const copy = arr.slice();
       copy.splice(i, 1);
-      if (frame(arr[i], copy)) return simulate(eles);
+      frame(arr[i], copy)
     }
   }, 200);
 }
@@ -62,8 +62,7 @@ function frame(ele, copy) {
     // check if reached
     if (checkCollision(ele.childNodes[0], ele.following)) {
       // kill
-      ele.kill(ele.following);
-      return true;
+      return null;
     } else {
       // follow
       ele.vel = bestDir(ele.childNodes[0], ele.following);
@@ -131,7 +130,7 @@ function createBody(type) {
       body.flee = [];
       body.follow = ["sheep"];
       body.wolf = () => log("wolf to reproduce");
-      body.sheep = (sheep) => {};
+      body.sheep = () => log("sheep to be killed");
       break;
     case "sheep":
       body.speed = 0.6;
@@ -144,13 +143,6 @@ function createBody(type) {
   body.appendChild(head);
   body.classList.add("body");
 
-  body.kill = (target) => {
-      stop();
-      target.parentNode.remove();
-      eles.splice(eles.indexOf(target.parentNode), 1);
-      body.following = null;
-      eles = eles.reverse();
-  }
   body.move({});
   playground.appendChild(body);
   return body;
