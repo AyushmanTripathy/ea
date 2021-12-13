@@ -26,7 +26,7 @@ function simulate(arr) {
     for (const i in arr) {
       const copy = arr.slice();
       copy.splice(i, 1);
-      frame(arr[i], copy)
+      frame(arr[i], copy);
     }
   }, 200);
 }
@@ -44,6 +44,22 @@ function frame(ele, copy) {
     } else ele.fleeing = null;
   }
 
+  // following and still in reach
+  if (ele.following && checkCollision(ele, ele.following)) {
+    // check if reached
+    if (checkCollision(ele.childNodes[0], ele.following)) {
+      // found
+      ele[ele.following.type](ele.following);
+      ele.following = null;
+      return null;
+    } else {
+      // follow
+      ele.vel = bestDir(ele.childNodes[0], ele.following);
+      ele.style["border-color"] = "green";
+      return ele.move(ele.vel);
+    }
+  }
+
   // look around
   for (let against of copy) {
     against = against.childNodes[0];
@@ -51,23 +67,11 @@ function frame(ele, copy) {
     if (result) {
       ele.style["border-color"] = "yellow";
 
-      if (ele.flee.includes(against.type)) ele.fleeing = against;
-      else if (ele.follow.includes(against.type)) ele.following = against;
+      if (ele.flee.includes(against.type)) {
+        ele.following = null;
+        ele.fleeing = against;
+      } else if (ele.follow.includes(against.type)) ele.following = against;
       else log(against.type + " unknown type");
-    }
-  }
-
-  // following
-  if (ele.following) {
-    // check if reached
-    if (checkCollision(ele.childNodes[0], ele.following)) {
-      // kill
-      return null;
-    } else {
-      // follow
-      ele.vel = bestDir(ele.childNodes[0], ele.following);
-      ele.style["border-color"] = "green";
-      return ele.move(ele.vel);
     }
   }
 
@@ -129,14 +133,19 @@ function createBody(type) {
       body.speed = 1;
       body.flee = [];
       body.follow = ["sheep"];
-      body.wolf = () => log("wolf to reproduce");
-      body.sheep = () => log("sheep to be killed");
+      body.wolf = (wolf) => log("wolf to reproduce");
+      body.sheep = (sheep) => {
+        sheep.parentNode.remove();
+        eles.splice(eles.indexOf(sheep.parentNode), 1);
+      };
       break;
     case "sheep":
       body.speed = 0.6;
       body.flee = ["wolf"];
       body.follow = ["sheep"];
-      body.sheep = () => log("sheep to reproduce");
+      body.sheep = (sheep) => {
+        log("sheep to reproduce");
+      };
       break;
   }
   head.classList.add("head");
