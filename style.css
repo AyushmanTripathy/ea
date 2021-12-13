@@ -16,7 +16,6 @@ section {
   justify-content: center;
   align-items: center;
   background-color: transparent;
-  border: 2px solid #bbb;
 }
 
 .head {
@@ -38,13 +37,13 @@ section {
 }
 
 .sheep_body {
-  height: 200px;
-  width: 200px;
+  height: 250px;
+  width: 250px;
 }
 
 .wolf_body {
-  height: 350px;
-  width: 350px;
+  height: 320px;
+  width: 320px;
 }
 
 .sheep_head {

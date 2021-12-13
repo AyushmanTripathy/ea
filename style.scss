@@ -41,7 +41,7 @@ section {
   @include flex(column);
   @include flex-center;
   background-color: transparent;
-  border: 2px solid $sec;
+  //border: 2px solid $sec;
 }
 
 .head {
@@ -64,13 +64,13 @@ section {
 }
 
 .sheep_body {
-  height: 200px;
-  width: 200px;
+  height: 250px;
+  width: 250px;
 }
 
 .wolf_body {
-  height: 350px;
-  width: 350px;
+  height: 320px;
+  width: 320px;
 }
 
 .sheep_head {

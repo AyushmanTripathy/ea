@@ -16,9 +16,8 @@ function init() {
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
-  eles.push(createBody("wolf"));
-  eles.push(createBody("wolf"));
+  eles.push(createBody("wolf"))
+  eles.push(createBody("wolf"))
 
   simulate(eles);
 }
@@ -42,7 +41,6 @@ function frame(ele, copy) {
     ele.childNodes[0].pregnant += 1;
     let preg = ele.childNodes[0].pregnant;
 
-    log(preg + " : " + ele.type);
     if (preg < 3) ele.childNodes[0].style["border-radius"] = "50%";
     else if (preg == 40) {
       log("birth : " + ele.type);
@@ -167,10 +165,7 @@ function createBody(type) {
       body.flee = [];
       body.follow = ["sheep"];
       body.wolf = (wolf) => {
-        if (!wolf.male) {
-          wolf.pregnant = 1;
-          body.following - null;
-        }
+        if (!wolf.male) wolf.pregnant = 1;
       };
       body.sheep = (sheep) => {
         sheep.parentNode.remove();
@@ -178,14 +173,11 @@ function createBody(type) {
       };
       break;
     case "sheep":
-      body.speed = 0.6;
+      body.speed = 0.7;
       body.flee = ["wolf"];
-      body.follow = ["sheep"];
+      body.follow = [];
       body.sheep = (sheep) => {
-        if (!sheep.male) {
-          sheep.pregnant = 1;
-          body.following = null;
-        }
+        if (!sheep.male) sheep.pregnant = 1;
       };
       break;
   }

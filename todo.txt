@@ -1,5 +1,6 @@
 DONE
 ----
+fix sheep reproduction bug
 reproduction
 killing
 sheeps
@@ -9,7 +10,7 @@ collision dectation
 
 TODO
 ----
-fix sheep reproduction bug
+infinte grid
 moving semi-random
 add sprites
 
