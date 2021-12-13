@@ -1,5 +1,7 @@
 DONE
 ----
+add sprites
+population counter
 fix sheep reproduction bug
 reproduction
 killing
@@ -10,9 +12,10 @@ collision dectation
 
 TODO
 ----
-infinte grid
+genetics
+inheritance
 moving semi-random
-add sprites
+infinte grid
 
 NOTE
 ----

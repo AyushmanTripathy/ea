@@ -1,10 +1,18 @@
 const playground = document.querySelector("section");
 const log = (s) => console.log(s);
+
 const $ = (id) => document.getElementById(id);
+const sheep_count = $("sheep_count")
+const wolf_count = $("wolf_count")
 
 let hash_code = 0;
 let id;
 let gender = 0;
+
+const count = {
+  sheep : 0,
+  wolf : 0
+}
 
 const dirs = generateDirs();
 
@@ -16,8 +24,9 @@ function init() {
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
-  eles.push(createBody("wolf"))
-  eles.push(createBody("wolf"))
+  eles.push(createBody("sheep"));
+  eles.push(createBody("wolf"));
+  eles.push(createBody("wolf"));
 
   simulate(eles);
 }
@@ -29,7 +38,7 @@ function simulate(arr) {
       copy.splice(i, 1);
       frame(arr[i], copy);
     }
-    if (eles.length > 20) stop();
+    if (eles.length > 20 || eles.length == 0) stop();
   }, 200);
 }
 
@@ -41,10 +50,10 @@ function frame(ele, copy) {
     ele.childNodes[0].pregnant += 1;
     let preg = ele.childNodes[0].pregnant;
 
-    if (preg < 3) ele.childNodes[0].style["border-radius"] = "50%";
+    if (preg < 3) ele.childNodes[0].style["border-color"] = "blue";
     else if (preg == 40) {
       log("birth : " + ele.type);
-      ele.childNodes[0].style["border-radius"] = "0%";
+      ele.childNodes[0].style["border-color"] = "green";
       eles.push(createBody(ele.type));
       ele.childNodes[0].pregnant = null;
     }
@@ -131,12 +140,16 @@ function bestDir(pos, goal, opp) {
 }
 
 function createBody(type) {
+  count[type] += 1;
+  updateCount();
+
   gender = gender ? 0 : 1;
   const body = document.createElement("div");
-  const head = document.createElement("div");
+  const head = document.createElement("img");
   const hash_id = hash();
 
   head.setAttribute("id", hash_id);
+
   body.setAttribute("id", hash_id);
   body.x = random(10, 90);
   body.y = random(10, 90);
@@ -161,6 +174,7 @@ function createBody(type) {
 
   switch (type) {
     case "wolf":
+      head.setAttribute("src", "./wolf.png");
       body.speed = 1;
       body.flee = [];
       body.follow = ["sheep"];
@@ -168,11 +182,12 @@ function createBody(type) {
         if (!wolf.male) wolf.pregnant = 1;
       };
       body.sheep = (sheep) => {
-        sheep.parentNode.remove();
+        remove(sheep.parentNode)
         eles.splice(eles.indexOf(sheep.parentNode), 1);
       };
       break;
     case "sheep":
+      head.setAttribute("src", "./sheep.png");
       body.speed = 0.7;
       body.flee = ["wolf"];
       body.follow = [];
@@ -188,6 +203,12 @@ function createBody(type) {
   body.move({});
   playground.appendChild(body);
   return body;
+}
+
+function remove (ele) {
+  count[ele.type] += -1
+  updateCount();
+  ele.remove();
 }
 
 function checkCollision(a, b) {
@@ -237,4 +258,9 @@ function generateDirs() {
   }
   dirs.splice(4, 1);
   return dirs;
+}
+
+function updateCount() {
+  sheep_count.innerHTML = count.sheep;
+  wolf_count.innerHTML = count.wolf;
 }
