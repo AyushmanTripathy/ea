@@ -4,6 +4,8 @@ const $ = (id) => document.getElementById(id);
 
 let hash_code = 0;
 let id;
+let gender = 0;
+
 const dirs = generateDirs();
 
 init();
@@ -28,17 +30,32 @@ function simulate(arr) {
       copy.splice(i, 1);
       frame(arr[i], copy);
     }
+    if (eles.length > 20) stop();
   }, 200);
 }
 
 function frame(ele, copy) {
   ele.style["border-color"] = "#bbb";
 
+  // pregnant female
+  if (!ele.male && ele.childNodes[0].pregnant) {
+    ele.childNodes[0].pregnant += 1;
+    let preg = ele.childNodes[0].pregnant;
+
+    log(preg + " : " + ele.type);
+    if (preg < 3) ele.childNodes[0].style["border-radius"] = "50%";
+    else if (preg == 40) {
+      log("birth : " + ele.type);
+      ele.childNodes[0].style["border-radius"] = "0%";
+      eles.push(createBody(ele.type));
+      ele.childNodes[0].pregnant = null;
+    }
+  }
+
   // fleeing
   if (ele.fleeing) {
     if (checkCollision(ele, ele.fleeing)) {
       ele.vel = bestDir(ele.childNodes[0], ele.fleeing, true);
-
       ele.style["border-color"] = "red";
       return ele.move(ele.vel);
     } else ele.fleeing = null;
@@ -67,11 +84,21 @@ function frame(ele, copy) {
     if (result) {
       ele.style["border-color"] = "yellow";
 
+      // check for predator
       if (ele.flee.includes(against.type)) {
         ele.following = null;
         ele.fleeing = against;
-      } else if (ele.follow.includes(against.type)) ele.following = against;
-      else log(against.type + " unknown type");
+        // reproduce
+      } else if (
+        ele.type == against.type &&
+        ele.male &&
+        !against.pregnant &&
+        !against.male
+      )
+        ele.following = against;
+      // check for food
+      else if (ele.follow.includes(against.type)) ele.following = against;
+      //else log(against.type + " unknown type");
     }
   }
 
@@ -106,6 +133,7 @@ function bestDir(pos, goal, opp) {
 }
 
 function createBody(type) {
+  gender = gender ? 0 : 1;
   const body = document.createElement("div");
   const head = document.createElement("div");
   const hash_id = hash();
@@ -116,8 +144,13 @@ function createBody(type) {
   body.y = random(10, 90);
   body.following = null;
   body.vel = randomVel();
-  head.type = type;
 
+  head.type = type;
+  head.male = gender;
+  body.type = type;
+  body.male = gender;
+
+  head.classList.add("gender" + gender);
   body.classList.add(type + "_body");
   head.classList.add(type + "_head");
 
@@ -133,7 +166,12 @@ function createBody(type) {
       body.speed = 1;
       body.flee = [];
       body.follow = ["sheep"];
-      body.wolf = (wolf) => log("wolf to reproduce");
+      body.wolf = (wolf) => {
+        if (!wolf.male) {
+          wolf.pregnant = 1;
+          body.following - null;
+        }
+      };
       body.sheep = (sheep) => {
         sheep.parentNode.remove();
         eles.splice(eles.indexOf(sheep.parentNode), 1);
@@ -144,7 +182,10 @@ function createBody(type) {
       body.flee = ["wolf"];
       body.follow = ["sheep"];
       body.sheep = (sheep) => {
-        log("sheep to reproduce");
+        if (!sheep.male) {
+          sheep.pregnant = 1;
+          body.following = null;
+        }
       };
       break;
   }

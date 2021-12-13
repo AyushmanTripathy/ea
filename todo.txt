@@ -1,5 +1,7 @@
 DONE
 ----
+reproduction
+killing
 sheeps
 fleeing away
 pathfinding
@@ -7,7 +9,7 @@ collision dectation
 
 TODO
 ----
-killing
+fix sheep reproduction bug
 moving semi-random
 add sprites
 
