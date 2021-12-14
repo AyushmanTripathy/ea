@@ -2,17 +2,19 @@ const playground = document.querySelector("section");
 const log = (s) => console.log(s);
 
 const $ = (id) => document.getElementById(id);
-const sheep_count = $("sheep_count")
-const wolf_count = $("wolf_count")
+const sheep_count = $("sheep_count");
+const wolf_count = $("wolf_count");
+const plant_count = $("plant_count");
 
 let hash_code = 0;
 let id;
 let gender = 0;
 
 const count = {
-  sheep : 0,
-  wolf : 0
-}
+  sheep: 0,
+  wolf: 0,
+  plant: 0,
+};
 
 const dirs = generateDirs();
 
@@ -24,21 +26,31 @@ function init() {
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
   eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
   eles.push(createBody("wolf"));
   eles.push(createBody("wolf"));
+
+  eles.push(growPlant());
+  eles.push(growPlant());
+  eles.push(growPlant());
+  eles.push(growPlant());
 
   simulate(eles);
 }
 
 function simulate(arr) {
   id = setInterval(() => {
-    for (const i in arr) {
-      const copy = arr.slice();
-      copy.splice(i, 1);
-      frame(arr[i], copy);
+    try {
+      for (const i in arr) {
+        const copy = arr.slice();
+        copy.splice(i, 1);
+        if (arr[i].type != "plant") frame(arr[i], copy);
+      }
+      if (eles.length > 30 || eles.length == 0) stop();
+      if (chooseRandomly(14)) eles.push(growPlant())
+    } catch (e) {
+      stop();
+      log(e);
     }
-    if (eles.length > 20 || eles.length == 0) stop();
   }, 200);
 }
 
@@ -139,6 +151,28 @@ function bestDir(pos, goal, opp) {
   return bestDir;
 }
 
+function growPlant() {
+  count.plant += 1;
+  updateCount();
+
+  const body = document.createElement("div");
+  const head = document.createElement("img");
+
+  body.style.top = random(10, 90) + "%";
+  body.style.left = random(10, 90) + "%";
+
+  head.type = "plant";
+  body.type = "plant";
+
+  head.setAttribute("src","./plant.png")
+  head.classList.add("head");
+  body.appendChild(head);
+  body.classList.add("body");
+
+  playground.appendChild(body);
+  return body;
+}
+
 function createBody(type) {
   count[type] += 1;
   updateCount();
@@ -182,17 +216,21 @@ function createBody(type) {
         if (!wolf.male) wolf.pregnant = 1;
       };
       body.sheep = (sheep) => {
-        remove(sheep.parentNode)
+        remove(sheep.parentNode);
         eles.splice(eles.indexOf(sheep.parentNode), 1);
       };
       break;
     case "sheep":
       head.setAttribute("src", "./sheep.png");
-      body.speed = 0.7;
+      body.speed = 0.6;
       body.flee = ["wolf"];
-      body.follow = [];
+      body.follow = ["plant"];
       body.sheep = (sheep) => {
         if (!sheep.male) sheep.pregnant = 1;
+      };
+      body.plant = (plant) => {
+        remove(plant.parentNode);
+        eles.splice(eles.indexOf(plant.parentNode), 1);
       };
       break;
   }
@@ -205,8 +243,8 @@ function createBody(type) {
   return body;
 }
 
-function remove (ele) {
-  count[ele.type] += -1
+function remove(ele) {
+  count[ele.type] += -1;
   updateCount();
   ele.remove();
 }
@@ -227,6 +265,10 @@ function randomVel() {
     x: random(-1, 1),
     y: random(-1, 1),
   };
+}
+
+function chooseRandomly(ratio) {
+  return !random(0, ratio);
 }
 
 function random(min, max) {
@@ -263,4 +305,5 @@ function generateDirs() {
 function updateCount() {
   sheep_count.innerHTML = count.sheep;
   wolf_count.innerHTML = count.wolf;
+  plant_count.innerHTML = count.plant;
 }

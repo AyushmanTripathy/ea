@@ -1,5 +1,6 @@
 DONE
 ----
+plants
 add sprites
 population counter
 fix sheep reproduction bug
@@ -12,6 +13,7 @@ collision dectation
 
 TODO
 ----
+hunger & meter
 genetics
 inheritance
 moving semi-random
