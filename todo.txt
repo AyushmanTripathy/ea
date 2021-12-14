@@ -1,5 +1,6 @@
 DONE
 ----
+hunger
 plants
 add sprites
 population counter
@@ -13,7 +14,6 @@ collision dectation
 
 TODO
 ----
-hunger & meter
 genetics
 inheritance
 moving semi-random

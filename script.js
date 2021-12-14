@@ -21,18 +21,9 @@ const dirs = generateDirs();
 init();
 function init() {
   globalThis.eles = [];
-  eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
-  eles.push(createBody("sheep"));
-  eles.push(createBody("wolf"));
-  eles.push(createBody("wolf"));
-
-  eles.push(growPlant());
-  eles.push(growPlant());
-  eles.push(growPlant());
-  eles.push(growPlant());
+  for (let i = 0; i < 6; i++) eles.push(createBody("sheep"));
+  for (let i = 0; i < 2; i++) eles.push(createBody("wolf"));
+  for (let i = 0; i < 7; i++) eles.push(growPlant());
 
   simulate(eles);
 }
@@ -45,8 +36,9 @@ function simulate(arr) {
         copy.splice(i, 1);
         if (arr[i].type != "plant") frame(arr[i], copy);
       }
-      if (eles.length > 30 || eles.length == 0) stop();
-      if (chooseRandomly(14)) eles.push(growPlant())
+      if (count.sheep + count.wolf > 30 || count.sheep + count.wolf == 0)
+        stop();
+      if (chooseRandomly(14)) eles.push(growPlant());
     } catch (e) {
       stop();
       log(e);
@@ -56,6 +48,14 @@ function simulate(arr) {
 
 function frame(ele, copy) {
   ele.style["border-color"] = "#bbb";
+
+  // hunger
+  ele.hunger += -1;
+  if (ele.hunger > max_health[ele.type]) ele.hunger = max_health[ele.type];
+  else if (ele.hunger < 0) {
+    log("starved : " + ele.type + ele.hunger);
+    kill(ele.childNodes[0]);
+  }
 
   // pregnant female
   if (!ele.male && ele.childNodes[0].pregnant) {
@@ -164,7 +164,7 @@ function growPlant() {
   head.type = "plant";
   body.type = "plant";
 
-  head.setAttribute("src","./plant.png")
+  head.setAttribute("src", "./plant.png");
   head.classList.add("head");
   body.appendChild(head);
   body.classList.add("body");
@@ -194,6 +194,7 @@ function createBody(type) {
   head.male = gender;
   body.type = type;
   body.male = gender;
+  body.hunger = max_health[type];
 
   head.classList.add("gender" + gender);
   body.classList.add(type + "_body");
@@ -216,8 +217,8 @@ function createBody(type) {
         if (!wolf.male) wolf.pregnant = 1;
       };
       body.sheep = (sheep) => {
-        remove(sheep.parentNode);
-        eles.splice(eles.indexOf(sheep.parentNode), 1);
+        body.hunger += sheep_health_regeneration;
+        kill(sheep);
       };
       break;
     case "sheep":
@@ -229,8 +230,8 @@ function createBody(type) {
         if (!sheep.male) sheep.pregnant = 1;
       };
       body.plant = (plant) => {
-        remove(plant.parentNode);
-        eles.splice(eles.indexOf(plant.parentNode), 1);
+        body.hunger += plant_health_regeneration;
+        kill(plant);
       };
       break;
   }
@@ -241,6 +242,12 @@ function createBody(type) {
   body.move({});
   playground.appendChild(body);
   return body;
+}
+
+function kill(ele) {
+  log("deadth : " + ele.type);
+  remove(ele.parentNode);
+  eles.splice(eles.indexOf(ele.parentNode), 1);
 }
 
 function remove(ele) {
