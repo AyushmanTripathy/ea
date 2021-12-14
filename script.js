@@ -51,30 +51,28 @@ function frame(ele, copy) {
 
   // hunger
   ele.hunger += -1;
+  ele.childNodes[2].value = ele.hunger;
   if (ele.hunger > max_health[ele.type]) ele.hunger = max_health[ele.type];
-  else if (ele.hunger < 0) {
-    log("starved : " + ele.type + ele.hunger);
-    kill(ele.childNodes[0]);
-  }
+  else if (ele.hunger < 0) kill(ele.childNodes[1]);
 
   // pregnant female
-  if (!ele.male && ele.childNodes[0].pregnant) {
-    ele.childNodes[0].pregnant += 1;
-    let preg = ele.childNodes[0].pregnant;
+  if (!ele.male && ele.childNodes[1].pregnant) {
+    ele.childNodes[1].pregnant += 1;
+    let preg = ele.childNodes[1].pregnant;
 
-    if (preg < 3) ele.childNodes[0].style["border-color"] = "blue";
-    else if (preg == 40) {
+    if (preg < 3) ele.childNodes[0].style["background-color"] = "blue";
+    else if (preg == gestation_period[ele.type]) {
       log("birth : " + ele.type);
-      ele.childNodes[0].style["border-color"] = "green";
+      ele.childNodes[0].style["background-color"] = "green";
       eles.push(createBody(ele.type));
-      ele.childNodes[0].pregnant = null;
+      ele.childNodes[1].pregnant = null;
     }
   }
 
   // fleeing
   if (ele.fleeing) {
     if (checkCollision(ele, ele.fleeing)) {
-      ele.vel = bestDir(ele.childNodes[0], ele.fleeing, true);
+      ele.vel = bestDir(ele.childNodes[1], ele.fleeing, true);
       ele.style["border-color"] = "red";
       return ele.move(ele.vel);
     } else ele.fleeing = null;
@@ -83,14 +81,14 @@ function frame(ele, copy) {
   // following and still in reach
   if (ele.following && checkCollision(ele, ele.following)) {
     // check if reached
-    if (checkCollision(ele.childNodes[0], ele.following)) {
+    if (checkCollision(ele.childNodes[1], ele.following)) {
       // found
       ele[ele.following.type](ele.following);
       ele.following = null;
       return null;
     } else {
       // follow
-      ele.vel = bestDir(ele.childNodes[0], ele.following);
+      ele.vel = bestDir(ele.childNodes[1], ele.following);
       ele.style["border-color"] = "green";
       return ele.move(ele.vel);
     }
@@ -98,7 +96,7 @@ function frame(ele, copy) {
 
   // look around
   for (let against of copy) {
-    against = against.childNodes[0];
+    against = against.childNodes[1];
     const result = checkCollision(ele, against);
     if (result) {
       ele.style["border-color"] = "yellow";
@@ -196,7 +194,7 @@ function createBody(type) {
   body.male = gender;
   body.hunger = max_health[type];
 
-  head.classList.add("gender" + gender);
+  //head.classList.add("gender" + gender);
   body.classList.add(type + "_body");
   head.classList.add(type + "_head");
 
@@ -236,10 +234,20 @@ function createBody(type) {
       break;
   }
   head.classList.add("head");
-  body.appendChild(head);
   body.classList.add("body");
 
+  // dot
+  const dot = document.createElement("div");
+  dot.classList.add("gender" + gender);
+  const meter = document.createElement("meter");
+  meter.min = 0;
+  meter.max = max_health[type];
+  meter.value = max_health[type];
+
   body.move({});
+  body.appendChild(dot);
+  body.appendChild(head);
+  body.appendChild(meter);
   playground.appendChild(body);
   return body;
 }

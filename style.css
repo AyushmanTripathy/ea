@@ -44,10 +44,14 @@ img {
   justify-content: center;
   align-items: center;
   background-color: transparent;
+  border: 2px solid #bbb;
 }
 
 .gender0 {
-  border: 3px solid green;
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background-color: green;
 }
 
 .dead {
